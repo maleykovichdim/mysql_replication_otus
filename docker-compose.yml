@@ -1,0 +1,88 @@
+version: '3.7'
+
+services:
+  web:
+    build:
+      context: ./go-getting-started
+      dockerfile: Dockerfile
+    ports:
+     - "80:8080"
+    volumes:
+     - ./go-getting-started:/home/go-getting-started
+    networks:
+      - otus-network
+
+  alpha:
+    build:
+      context: alpha
+      dockerfile: Dockerfile
+    container_name: alpha
+    restart: "no"
+    environment:
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_USER: root
+      MYSQL_ROOT_PASSWORD: toor
+      MYSQL_DATABASE: socialnet
+    command: >
+      --sql-mode='STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION'
+      --general-log=ON
+      --log-queries-not-using-indexes=ON
+    networks:
+      - otus-network
+    ports:
+      - 3360:3306
+    volumes:
+      - ./alpha/data:/var/lib/mysql
+
+  slave:
+    build:
+      context: slave
+      dockerfile: Dockerfile
+    container_name: slave
+    restart: "no"
+    environment:
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_USER: root
+      MYSQL_ROOT_PASSWORD: toor
+      MYSQL_DATABASE: socialnet
+    command: >
+      --sql-mode='STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION'
+      --general-log=ON
+      --log-queries-not-using-indexes=ON
+    networks:
+      - otus-network
+    ports:
+      - 3361:3306
+    volumes:
+      - ./slave/data:/var/lib/mysql
+
+  slave2:
+    build:
+      context: slave2
+      dockerfile: Dockerfile
+    container_name: slave2
+    restart: "no"
+    environment:
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_USER: root
+      MYSQL_ROOT_PASSWORD: toor
+      MYSQL_DATABASE: socialnet
+    command: >
+      --sql-mode='STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION'
+      --general-log=ON
+      --log-queries-not-using-indexes=ON
+    networks:
+      - otus-network
+    ports:
+      - 3362:3306
+    volumes:
+      - ./slave2/data:/var/lib/mysql
+
+volumes:
+  alpha:
+  slave:
+  slave2:
+
+networks:
+  otus-network:
+    external: true
